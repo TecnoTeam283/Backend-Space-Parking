@@ -7,6 +7,7 @@ const Role = require('../Model/rolesModel');
 const Booking = require('../Model/bookingsModel');
 const nodemailer = require('nodemailer')
 const crypto = require('crypto');
+const moment = require('moment');
 
 const generateRandom = () => {
     const password = crypto.randomBytes(4).toString('hex');
@@ -449,13 +450,60 @@ const getBooking = asyncHandler(async(req, res) => {
       }
 });
 
+
+const getBookingById = asyncHandler(async(req,res) =>{
+    const { idUser } = req.params;
+    const bookings = await Booking.find({ idUser: idUser });
+
+    if (bookings.length > 0) {
+        const bookingData = bookings.map((booking) => {
+          const { name, nitParking, dateStartBooking, dateEndBooking } = booking;
+          return {
+            name,
+            nitParking,
+            dateStartBooking,
+            dateEndBooking,
+          };
+        });
+    
+        res.status(200).json(bookingData);
+      } else {
+        res.status(404).json({ message: 'Este usuario no tiene reservas' });
+      }
+    });
+
 const createBooking = asyncHandler(async(req, res) => {
     try {
-        const { name, dateStartBooking, duration } = req.body;
-        const dateEndBooking = new Date(dateStartBooking);
-        dateEndBooking.setMinutes(dateEndBooking.getMinutes() + duration);
+        const { name, nitParking, idUser, dateStartBooking, duration } = req.body;
+        const formattedStartBooking = moment(dateStartBooking).format('YYYY-MM-DD HH:mm:ss');
+        const formattedEndBooking = moment(dateStartBooking).add(duration, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+
+    // Calcular fecha de finalización sumando la duración
+
+        // Verificacion reserva activa dentro del tiempo
+        const existingBooking = await Booking.findOne({
+          idUser,
+          $or: [
+            {
+              dateStartBooking: { $lte: formattedStartBooking }, // La reserva existente comienza antes o al mismo tiempo que la nueva reserva
+              dateEndBooking: { $gt: formattedStartBooking } // La reserva existente termina después de que comience la nueva reserva
+            },
+            {
+              dateStartBooking: { $lt: formattedEndBooking }, // La reserva existente comienza antes de que termine la nueva reserva
+              dateEndBooking: { $gte: formattedEndBooking } // La reserva existente termina al mismo tiempo o después de que termine la nueva reserva
+            },
+            {
+              dateStartBooking: { $gte: formattedStartBooking }, // La reserva existente comienza después de que comience la nueva reserva
+              dateEndBooking: { $lte: formattedEndBooking } // La reserva existente termina antes de que termine la nueva reserva
+            }
+          ]
+        });
+
+        if (existingBooking) {
+          return res.status(400).json({ error: 'Ya tienes una reserva activa' });
+        }
     
-        const booking = new Booking({ name, dateStartBooking, dateEndBooking });
+        const booking = new Booking({ name,  nitParking, idUser, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
         await booking.save();
     
         res.json({ mensaje: 'Reserva creada exitosamente' });
@@ -486,5 +534,6 @@ module.exports = {
     getAllParking,
     search,
     getBooking,
+    getBookingById,
     createBooking
 }

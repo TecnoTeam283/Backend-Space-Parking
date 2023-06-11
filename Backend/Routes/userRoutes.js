@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, registerParking, loginUsers, updateUser, getUser, recoverPassword, resetUpdatePassword, getUserParking, getRole, getAllParking, updateUserParking, search, getBooking, createBooking} = require('../Controllers/userController');
+const { registerUser, registerParking, loginUsers, updateUser, getUser, recoverPassword, resetUpdatePassword, getUserParking, getRole, getAllParking, updateUserParking, search, getBooking, getBookingById,createBooking} = require('../Controllers/userController');
 // const { protect } = require('../Middleware/authMiddleware');
 
 router.post('/registerUser', registerUser);
@@ -15,7 +15,8 @@ router.post('/meUser', getUser);
 router.post('/meUserParking', getUserParking);
 router.get('/getParking', getAllParking);
 router.post('/search', search);
-router.get('/getBooking', getBooking);
+router.get('/getAllBookings', getBooking);
+router.get('/getBookingsById/:idUser', getBookingById)
 router.post('/createBooking', createBooking);
 
 module.exports = router

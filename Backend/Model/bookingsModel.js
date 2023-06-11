@@ -5,6 +5,14 @@ const bookingSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+    nitParking: {
+        type: String, 
+        required: true 
+    },
+    idUser: {
+        type: String, 
+        required: true 
+    },
     dateStartBooking: {
         type: String, 
         required: true 
