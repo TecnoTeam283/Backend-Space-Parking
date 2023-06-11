@@ -365,7 +365,7 @@ const getUserParking = asyncHandler(async(req, res) => {
     const { email } = req.body;
     const userParking = await UserParking.findOne({ email: email });
     if (userParking) {
-        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd, nit, capacity } = userParking;
+        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd,  priceCar, priceMotorcycle, nit, capacity } = userParking;
         
         res.status(200).json({
             id: _id,
@@ -378,6 +378,8 @@ const getUserParking = asyncHandler(async(req, res) => {
             cellphoneParking,
             hourStart,
             hourEnd,
+            priceCar,
+            priceMotorcycle,
             nit,
             capacity
         });
