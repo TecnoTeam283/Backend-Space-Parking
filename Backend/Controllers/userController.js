@@ -113,7 +113,7 @@ const registerParking = asyncHandler(async(req, res) => {
         nit,
         hourStart,
         hourEnd,
-        capacity,
+        capacity: [{ space: capacity, state: 'available' }],
         priceMotorcycle,
         priceCar
     })
@@ -139,7 +139,7 @@ const registerParking = asyncHandler(async(req, res) => {
             nit: user.nit,
             hourStart: user.hourStart,
             hourEnd: user.hourEnd,
-            capacity: user.capacity,
+            capacity: user.capacity.space,
             rol: user.roles,
             token: generateToken(user._id)
         })
@@ -386,7 +386,7 @@ const getUserParking = asyncHandler(async(req, res) => {
     } else {
       res.status(404).json({ message: 'Usuario no encontrado' });
     }
-  });
+});
 
 const getAllParking = asyncHandler(async(req, res) => {
     UserParking.find().then((data, err) => {
