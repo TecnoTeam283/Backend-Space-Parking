@@ -55,24 +55,24 @@ const userParkingSchema = mongoose.Schema({
         required: [true, 'Please add a hour end'],
     },
     capacity: {
-            type: [{
-                space: {
-                    type: String,
-                    required: true,
-                },
-                state: {
-                    type: String,
-                    enum: ['available', 'busy', 'reserved', 'not available'],
-                    default: 'available',
-                },
-            }],
-            validate: {
-                validator: function (value) {
-                    return value.length <= space; // Validar que haya máximo 20 espacios
-                },
-                // message: `The maximum number of spaces is 20`,
+        type: [{
+            space: {
+                type: String,
+                required: true,
             },
-            required: [true, 'Please add a capacity'],
+            state: {
+                type: String,
+                enum: ['available', 'busy', 'reserved', 'notAvailable'],
+                default: 'available',
+            },
+        }],
+        validate: {
+            validator: function (value) {
+                return value.length <= 20; // Validar que haya máximo 20 espacios
+            },
+            // message: `The maximum number of spaces is 20`,
+        },
+        required: [true, 'Please add a capacity'],
     },
     priceMotorcycle: {
         type: Number,

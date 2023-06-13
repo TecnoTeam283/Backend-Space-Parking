@@ -113,7 +113,10 @@ const registerParking = asyncHandler(async(req, res) => {
         nit,
         hourStart,
         hourEnd,
-        capacity: [{ space: capacity, state: 'available' }],
+        capacity: Array.from({ length: capacity }, (_, index) => ({
+          space: `Space ${index + 1}`,
+          state: 'available',
+      })),
         priceMotorcycle,
         priceCar
     })
@@ -139,7 +142,7 @@ const registerParking = asyncHandler(async(req, res) => {
             nit: user.nit,
             hourStart: user.hourStart,
             hourEnd: user.hourEnd,
-            capacity: user.capacity.space,
+            capacity: user.capacity,
             rol: user.roles,
             token: generateToken(user._id)
         })
@@ -504,6 +507,27 @@ const createBooking = asyncHandler(async(req, res) => {
         if (existingBooking) {
           return res.status(400).json({ error: 'Ya tienes una reserva activa' });
         }
+
+        const userParking = await UserParking.findOne({ nit: nitParking });
+        if (!userParking) {
+          return res.status(400).json({ error: 'No se encontró el parqueadero' });
+        }
+    
+        let availableSpace;
+        for (const space of userParking.capacity) {
+          if (space.state === 'available') {
+            space.state = 'reserved';
+            availableSpace = space;
+            break;
+          }
+        }
+    
+        if (!availableSpace) {
+          return res.status(400).json({ error: 'No hay espacios disponibles para reservar' });
+        }
+    
+        userParking.save();
+    
     
         const booking = new Booking({ name,  nitParking, idUser, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
         await booking.save();
@@ -514,6 +538,41 @@ const createBooking = asyncHandler(async(req, res) => {
       }
 });
 
+
+  const getUserSpaces = asyncHandler(async(req,res) =>{
+    const { idUserParking } = req.params;
+    const userParking = await UserParking.findOne({ idUserParking: idUserParking });
+
+    if (userParking) {
+      const userSpaces = userParking.capacity;
+
+      // `userSpaces` es un arreglo que contiene los espacios del usuario de parqueadero
+      res.status(200).json(userSpaces);
+    } else {
+      res.status(404).json({ message: 'Este usuario no tiene Espacios' });
+  }
+});
+
+const updateSpaceById = asyncHandler(async(req, res) => {
+  const { _id, idUserParking } = req.params;
+  const { state } = req.body;
+
+  UserParking.findOneAndUpdate(
+    { idUserParking: idUserParking, 'capacity._id': _id}, // Filtra por el ID del usuario y el ID del espacio
+    { $set: { 'capacity.$.state': state } }, // Actualiza el estado del espacio
+    { new: true }
+  )
+    .then(updatedUser => {
+      if (!updatedUser) {
+        res.status(404).json({ error: 'Usuario o espacio no encontrado' });
+      } else {
+        res.json(updatedUser);
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ error: 'Error al actualizar el estado del espacio' });
+    });
+});
 
 // Generate JWT
 const generateToken = (id) => {
@@ -537,5 +596,7 @@ module.exports = {
     search,
     getBooking,
     getBookingById,
-    createBooking
+    createBooking,
+    getUserSpaces,
+    updateSpaceById
 }
