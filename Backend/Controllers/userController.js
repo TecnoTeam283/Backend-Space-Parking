@@ -406,26 +406,54 @@ const updateUser = asyncHandler(async(req, res) => {
     const { idUser } = req.params;
     const { name, cellphone } = req.body;
 
-    User.findOneAndUpdate(idUser, { name, cellphone }, { new: true })
-        .then(updatedUser => {
-         res.json(updatedUser);
-    })
-    .catch(error => {
-      res.status(500).json({ Error: 'Error al actualizar los datos del usuario' });
-    });
+    try {
+      const user = await UserParking.findOne({idUser});
+      if(user){
+        const newInfo ={
+          name: name,
+          cellphone: cellphone,
+        }
+        await  User.updateOne({idUser: idUser}, {$set: newInfo})
+      }
+    } catch (err) {
+      res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
+    }
+
+    // User.findOneAndUpdate(idUser, { name, cellphone }, { new: true })
+    //     .then(updatedUser => {
+    //      res.json(updatedUser);
+    // })
+    // .catch(error => {
+    //   res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
+    // });
 });
 
 const updateUserParking = asyncHandler(async(req, res) => {
     const { idUserParking } = req.params;
     const { name, cellphone, address, cellphoneParking } = req.body;
+    
+    try {
+      const parking = await UserParking.findOne({idUserParking});
+      if(parking){
+        const newInfo ={
+          name: name,
+          cellphone: cellphone,
+          address: address,
+          cellphoneParking: cellphoneParking,
+        }
+        await  UserParking.updateOne({idUserParking: idUserParking}, {$set: newInfo})
+      }
+    } catch (err) {
+      res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
+    }
 
-    UserParking.findOneAndUpdate(idUserParking, { name, cellphone, address, cellphoneParking }, { new: true })
-        .then(updatedUser => {
-         res.json(updatedUser);
-    })
-    .catch(error => {
-      res.status(500).json({ Error: 'Error al actualizar los datos del usuario' });
-    });
+    // UserParking.findOneAndUpdate(idUserParking, { name, cellphone, address, cellphoneParking }, { new: true })
+    //     .then(updatedUserParking => {
+    //      res.json(updatedUserParking);
+    // })
+    // .catch(error => {
+    //   res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
+    // });
 });
 
 const search = asyncHandler(async(req, res) => {
@@ -456,7 +484,6 @@ const getBooking = asyncHandler(async(req, res) => {
       }
 });
 
-
 const getBookingById = asyncHandler(async(req,res) =>{
     const { idUser } = req.params;
     const bookings = await Booking.find({ idUser: idUser });
@@ -476,7 +503,7 @@ const getBookingById = asyncHandler(async(req,res) =>{
       } else {
         res.status(404).json({ message: 'Este usuario no tiene reservas' });
       }
-    });
+});
 
 const createBooking = asyncHandler(async(req, res) => {
     try {
@@ -539,8 +566,7 @@ const createBooking = asyncHandler(async(req, res) => {
       }
 });
 
-
-  const getUserSpaces = asyncHandler(async(req,res) =>{
+const getUserSpaces = asyncHandler(async(req,res) =>{
     const { idUserParking } = req.params;
     const userParking = await UserParking.findOne({ idUserParking: idUserParking });
 

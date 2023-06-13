@@ -68,9 +68,9 @@ const userParkingSchema = mongoose.Schema({
         }],
         validate: {
             validator: function (value) {
-                return value.length <= 20; // Validar que haya máximo 20 espacios
+                return value.length <= 50; // Validar que haya máximo 50 espacios
             },
-            // message: `The maximum number of spaces is 20`,
+            // message: `The maximum number of spaces is 50`,
         },
         required: [true, 'Please add a capacity'],
     },
