@@ -439,7 +439,8 @@ const search = asyncHandler(async(req, res) => {
       const resultados = await UserParking.find({ address: regex });
   
       // Envía los resultados de la búsqueda al cliente
-      res.send('Resultados de búsqueda: ' + searchTerm + '\n' + JSON.stringify(resultados));
+      // res.send('Resultados de búsqueda: ' + searchTerm + '\n' + JSON.stringify(resultados));
+      res.json(resultados);
     } catch (error) {
       console.log('Error en la búsqueda:', error);
       res.status(500).send('Error en la búsqueda');
