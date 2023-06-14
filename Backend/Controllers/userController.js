@@ -348,13 +348,14 @@ const getUser = asyncHandler(async(req, res) => {
     const user = await User.findOne({ email: email });
 
   if (user) {
-    const { _id, name, email, cellphone, license, idUser, roles, placa } = user;
+    const { _id, name, email, cellphone, license, idUser, vehicle, roles, placa } = user;
     res.status(200).json({
       _id,
       name,
       email,
       cellphone,
       license,
+      vehicle,
       idUser,
       roles,
       placa
@@ -413,7 +414,7 @@ const updateUser = asyncHandler(async(req, res) => {
           name: name,
           cellphone: cellphone,
         }
-        await  User.updateOne({idUser: idUser}, {$set: newInfo})
+        await User.updateOne({idUser: idUser}, {$set: newInfo})
       }
     } catch (err) {
       res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
@@ -432,28 +433,28 @@ const updateUserParking = asyncHandler(async(req, res) => {
     const { idUserParking } = req.params;
     const { name, cellphone, address, cellphoneParking } = req.body;
     
-    try {
-      const parking = await UserParking.findOne({idUserParking});
-      if(parking){
-        const newInfo ={
-          name: name,
-          cellphone: cellphone,
-          address: address,
-          cellphoneParking: cellphoneParking,
-        }
-        await  UserParking.updateOne({idUserParking: idUserParking}, {$set: newInfo})
-      }
-    } catch (err) {
-      res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
-    }
+    // try {
+    //   const parking = await UserParking.findOne({idUserParking});
+    //   if(parking){
+    //     const newInfo ={
+    //       name: name,
+    //       cellphone: cellphone,
+    //       address: address,
+    //       cellphoneParking: cellphoneParking,
+    //     }
+    //     await  UserParking.updateOne({idUserParking: idUserParking}, {$set: newInfo})
+    //   }
+    // } catch (err) {
+    //   res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
+    // }
 
-    // UserParking.findOneAndUpdate(idUserParking, { name, cellphone, address, cellphoneParking }, { new: true })
-    //     .then(updatedUserParking => {
-    //      res.json(updatedUserParking);
-    // })
-    // .catch(error => {
-    //   res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
-    // });
+    UserParking.findOneAndUpdate(idUserParking, { name, cellphone, address, cellphoneParking }, { new: true })
+        .then(updatedUserParking => {
+         res.json(updatedUserParking);
+    })
+    .catch(error => {
+      res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
+    });
 });
 
 const search = asyncHandler(async(req, res) => {
@@ -501,6 +502,28 @@ const getBookingById = asyncHandler(async(req,res) =>{
         res.status(200).json(bookingData);
       } else {
         res.status(404).json({ message: 'Este usuario no tiene reservas' });
+      }
+});
+const getBookingByNitParking = asyncHandler(async(req,res) =>{
+    const { nitParking } = req.params;
+    const bookings = await Booking.find({ nitParking: nitParking });
+
+    if (bookings.length > 0) {
+        const bookingData = bookings.map((booking) => {
+          const { name, userName, cellphone, nitParking, dateStartBooking, dateEndBooking } = booking;
+          return {
+            name,
+            userName,
+            cellphone,
+            nitParking,
+            dateStartBooking,
+            dateEndBooking,
+          };
+        });
+    
+        res.status(200).json(bookingData);
+      } else {
+        res.status(404).json({ message: 'Este parqueadero no tiene reservas' });
       }
 });
 
@@ -622,6 +645,7 @@ module.exports = {
     search,
     getBooking,
     getBookingById,
+    getBookingByNitParking,
     createBooking,
     getUserSpaces,
     updateSpaceById
