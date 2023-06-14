@@ -464,11 +464,10 @@ const search = asyncHandler(async(req, res) => {
       const regex = new RegExp(searchTerm, 'i');
   
       // Realiza la búsqueda filtrando por la dirección
-      const resultados = await UserParking.find({ address: regex });
+      const results = await UserParking.find({ address: regex });
   
       // Envía los resultados de la búsqueda al cliente
-      // res.send('Resultados de búsqueda: ' + searchTerm + '\n' + JSON.stringify(resultados));
-      res.json(resultados);
+      res.json(results);
     } catch (error) {
       console.log('Error en la búsqueda:', error);
       res.status(500).send('Error en la búsqueda');
@@ -507,7 +506,7 @@ const getBookingById = asyncHandler(async(req,res) =>{
 
 const createBooking = asyncHandler(async(req, res) => {
     try {
-        const { name, nitParking, idUser, dateStartBooking, duration } = req.body;
+        const { name, nitParking, idUser, userName, cellphone, dateStartBooking, duration } = req.body;
         const formattedStartBooking = moment(dateStartBooking).format('YYYY-MM-DD HH:mm:ss');
         const formattedEndBooking = moment(dateStartBooking).add(duration, 'minutes').format('YYYY-MM-DD HH:mm:ss');
 
@@ -557,7 +556,7 @@ const createBooking = asyncHandler(async(req, res) => {
         userParking.save();
     
     
-        const booking = new Booking({ name,  nitParking, idUser, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
+        const booking = new Booking({ name,  nitParking, idUser, userName, cellphone, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
         await booking.save();
     
         res.json({ mensaje: 'Reserva creada exitosamente' });
