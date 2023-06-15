@@ -24,23 +24,34 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'Please add a password']
     },
-    placa: {
-        type: String,
-        required: [true, 'Please add a placa'],
-        unique: true
-    },
-    model: {
-        type: String,
-        required: [true, 'Please add a model'],
-    },
-    license: {
-        type: String,
-        required: [true, 'Please add a license'],
-        unique: true
-    },
     vehicle: {
-        type: String,
-        required: [true, 'Please add a vehicle'],
+        type: [{
+            placa: {
+                type: String,
+                required: [true, 'Please add a placa'],
+                unique: true
+            },
+            model: {
+                type: String,
+                required: [true, 'Please add a model']
+            },
+            license: {
+                type: String,
+                required: [true, 'Please add a license'],
+                unique: true
+            },
+            typeVehicle: {
+                type: String,
+                required: [true, 'Please add a type vehicle'],
+            }
+        }],
+        validate: {
+            validator: function (vehicle) {
+                return vehicle.length <= 3; // Limitar a un máximo de tres vehículos
+        },
+    },
+        default: [],
+        required: [true, 'Please add a type vehicle'],
     },
     roles: {
         type: mongoose.Schema.Types.ObjectId,

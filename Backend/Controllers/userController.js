@@ -15,9 +15,9 @@ const generateRandom = () => {
 };
 
 const registerUser = asyncHandler(async(req, res) => {
-    const { name, email, cellphone, idUser, password, placa, model, license, vehicle, roles} = req.body
+    const { name, email, cellphone, idUser, password, placa, model, license, vehicle, typeVehicle, roles} = req.body
 
-    if (!name || !email || !cellphone || !password || !idUser || !placa || !model || !license || !vehicle ) {
+    if (!name || !email || !cellphone || !password || !idUser || !placa || !model || !license || !vehicle  ) {
         res.status(400)
         throw new Error('Please add all fields')
     }
@@ -41,10 +41,11 @@ const registerUser = asyncHandler(async(req, res) => {
         cellphone,
         idUser,
         password: hashedPassword,
-        placa,
-        model,
-        license,
-        vehicle,
+        vehicle: [
+          { placa, model, license, typeVehicle: vehicle },
+          // { placa: 'DEF456', model: 'Toyota Corolla', license: '789012' },
+          // añade más vehículos según sea necesario
+      ]
     })
 
     if(roles){
@@ -62,12 +63,8 @@ const registerUser = asyncHandler(async(req, res) => {
             email: user.email,
             cellphone: user.cellphone,
             idUser: user.idUser,
-            placa: user.placa,
-            model: user.model,
-            license: user.license,
             vehicle: user.vehicle,
             rol: user.roles,
-            // role: user.Role,
             token: generateToken(user._id)
         })
     } else {
@@ -504,6 +501,7 @@ const getBookingById = asyncHandler(async(req,res) =>{
         res.status(404).json({ message: 'Este usuario no tiene reservas' });
       }
 });
+
 const getBookingByNitParking = asyncHandler(async(req,res) =>{
     const { nitParking } = req.params;
     const bookings = await Booking.find({ nitParking: nitParking });
@@ -623,6 +621,74 @@ const updateSpaceById = asyncHandler(async(req, res) => {
     });
 });
 
+const addVehiclesToUser = asyncHandler(async (req, res) => {
+  const { idUser } = req.params; // Obtener el ID del usuario desde los parámetros de la solicitud
+  const { placa, model, license, typeVehicle } = req.body; // Obtener los datos del vehículo del cuerpo de la solicitud
+
+  try {
+    // Buscar al usuario por su ID
+    const user = await User.findOne({idUser});
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Crear un nuevo objeto de vehículo
+    const newVehicle = {
+      placa,
+      model,
+      license,
+      typeVehicle
+    };
+
+    // Agregar el vehículo al arreglo de vehículos del usuario
+    user.vehicle.push(newVehicle);
+
+    // Guardar los cambios en el usuario
+    await user.save();
+
+    res.status(201).json({ message: 'Vehicle created', vehicle: newVehicle });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+const updateVehicles = asyncHandler(async (req, res) => {
+  const { idUser, vehicleId } = req.params; // Obtener los IDs del usuario y del vehículo de los parámetros de la URL
+  const { placa, model, license, typeVehicle } = req.body; // Obtener los datos actualizados del vehículo del cuerpo de la solicitud
+
+  try {
+    // Buscar al usuario por su ID
+    const user = await User.findOne({idUser});
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Buscar el vehículo por su ID en el arreglo de vehículos del usuario
+    const vehicle = user.vehicle.id(vehicleId);
+
+    if (!vehicle) {
+      return res.status(404).json({ message: 'Vehicle not found' });
+    }
+
+    // Actualizar los datos del vehículo
+    vehicle.placa = placa;
+    vehicle.model = model;
+    vehicle.license = license;
+    vehicle.typeVehicle = typeVehicle;
+
+    // Guardar los cambios en el usuario
+    await user.save();
+
+    res.status(200).json({ message: 'Vehicle updated', vehicle });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -648,5 +714,7 @@ module.exports = {
     getBookingByNitParking,
     createBooking,
     getUserSpaces,
-    updateSpaceById
+    updateSpaceById,
+    addVehiclesToUser,
+    updateVehicles
 }
