@@ -15,6 +15,11 @@ const userSchema = mongoose.Schema({
         required: [true, 'Please add a cellphone'],
         unique: true
     },
+    license: {
+        type: String,
+        required: [true, 'Please add a license'],
+        unique: true
+    },
     idUser: {
         type: String,
         required: [true, 'Please add a identification'],
@@ -35,11 +40,7 @@ const userSchema = mongoose.Schema({
                 type: String,
                 required: [true, 'Please add a model']
             },
-            license: {
-                type: String,
-                required: [true, 'Please add a license'],
-                unique: true
-            },
+      
             typeVehicle: {
                 type: String,
                 required: [true, 'Please add a type vehicle'],

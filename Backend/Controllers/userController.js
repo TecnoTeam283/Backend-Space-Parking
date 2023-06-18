@@ -15,7 +15,7 @@ const generateRandom = () => {
 };
 
 const registerUser = asyncHandler(async(req, res) => {
-    const { name, email, cellphone, idUser, password, placa, model, license, vehicle, typeVehicle, roles} = req.body
+    const { name, email, cellphone, idUser, password, placa, model, license, vehicle, roles} = req.body
 
     if (!name || !email || !cellphone || !password || !idUser || !placa || !model || !license || !vehicle  ) {
         res.status(400)
@@ -41,8 +41,9 @@ const registerUser = asyncHandler(async(req, res) => {
         cellphone,
         idUser,
         password: hashedPassword,
+        license,
         vehicle: [
-          { placa, model, license, typeVehicle: vehicle },
+          { placa, model,  typeVehicle: vehicle },
           // { placa: 'DEF456', model: 'Toyota Corolla', license: '789012' },
           // añade más vehículos según sea necesario
       ]
@@ -78,9 +79,9 @@ const registerUser = asyncHandler(async(req, res) => {
 });
 
 const registerParking = asyncHandler(async(req, res) => {
-    const { name, email, cellphone, idUserParking, password, nameParking, address, cellphoneParking, nit, hourStart, hourEnd, capacity, priceMotorcycle, priceCar, roles} = req.body
+    const { name, email, cellphone, idUserParking, password, nameParking, address, cellphoneParking, nit, hourStart, hourEnd, capacity, priceMotorcycle, priceCar, location, roles} = req.body
 
-    if (!name || !email || !cellphone || !idUserParking || !password || !nameParking || !address || !cellphoneParking || !nit || !hourStart || !hourEnd || !capacity || !priceMotorcycle || !priceCar) {
+    if (!name || !email || !cellphone || !idUserParking || !password || !nameParking || !address || !cellphoneParking || !nit || !hourStart || !hourEnd || !capacity || !priceMotorcycle || !priceCar, !location) {
         res.status(400)
         throw new Error('Please add all fields')
     }
@@ -115,7 +116,8 @@ const registerParking = asyncHandler(async(req, res) => {
           state: 'available',
       })),
         priceMotorcycle,
-        priceCar
+        priceCar,
+        location: [location.lat, location.lng]
     })
 
     if(roles){
@@ -146,6 +148,7 @@ const registerParking = asyncHandler(async(req, res) => {
     } else {
         res.status(400)
         throw new Error('Invalid user data')
+        
     }
     
     const savedUser = await user.save()
@@ -191,6 +194,7 @@ const loginUsers = asyncHandler(async(req, res) => {
             nit: userParking.nit,
             roles: userParking.roles.name,
             capacity: userParking.capacity,
+            location: userParking.location,
             token: generateToken(userParking._id),
             msg: "Parking Registrado"
         })
@@ -366,7 +370,7 @@ const getUserParking = asyncHandler(async(req, res) => {
     const { email } = req.body;
     const userParking = await UserParking.findOne({ email: email });
     if (userParking) {
-        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd,  priceCar, priceMotorcycle, nit, capacity } = userParking;
+        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd,  priceCar, priceMotorcycle, nit, capacity, location } = userParking;
         
         res.status(200).json({
             id: _id,
@@ -380,6 +384,7 @@ const getUserParking = asyncHandler(async(req, res) => {
             hourStart,
             hourEnd,
             priceCar,
+            location,
             priceMotorcycle,
             nit,
             capacity
@@ -431,19 +436,19 @@ const updateUserParking = asyncHandler(async(req, res) => {
     const { name, cellphone, address, cellphoneParking } = req.body;
     
     try {
-      const parking = await UserParking.findOne({idUserParking});
-      if(parking){
-        const newInfo ={
+      const parking = await UserParking.findOne({ idUserParking });
+      if (parking) {
+        const newInfo = {
           name: name,
           cellphone: cellphone,
           address: address,
           cellphoneParking: cellphoneParking,
-        }
-        await  UserParking.updateOne({idUserParking: idUserParking}, {$set: newInfo})
-        res.status(200)('success');
+        };
+        await UserParking.updateOne({ idUserParking: idUserParking }, { $set: newInfo });
+        res.status(200).send('Datos Actualizados Correctamente');
       }
     } catch (err) {
-      res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
+      res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
     }
 
     // UserParking.findOneAndUpdate(idUserParking, { name, cellphone, address, cellphoneParking }, { new: true })
@@ -452,6 +457,7 @@ const updateUserParking = asyncHandler(async(req, res) => {
     // })
     // .catch(error => {
     //   res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
+    //   console.log(error.message);
     // });
 });
 

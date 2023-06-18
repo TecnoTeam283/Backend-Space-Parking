@@ -82,6 +82,10 @@ const userParkingSchema = mongoose.Schema({
         type: Number,
         required: [true, 'Please add a priceCar'],
     },
+    location: {
+        type: [Number], // Arreglo de números para latitud y longitud
+        required: [true, 'Please add a location'],
+      },
     roles: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Role", 
