@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, registerParking, loginUsers, updateUser, getUser, recoverPassword, resetUpdatePassword, getUserParking, getRole, getAllParking, updateUserParking, search, getBooking, getBookingById, getBookingByNitParking, createBooking, getUserSpaces, updateSpaceById, addVehiclesToUser, updateVehicles} = require('../Controllers/userController');
+const { registerUser, registerParking, loginUsers, updateUser, getUser, recoverPassword, resetUpdatePassword, getUserParking, getRole, getAllParking, updateUserParking, search, getBooking, getBookingById, getBookingByNitParking, createBooking, getUserSpaces, updateSpaceById, addVehiclesToUser, updateVehicles, deleteVehicles} = require('../Controllers/userController');
 // const { protect } = require('../Middleware/authMiddleware');
 
 router.post('/registerUser', registerUser);
@@ -23,6 +23,7 @@ router.patch('/updateSpaceById/:idUserParking/:_id', updateSpaceById)
 router.post('/createBooking', createBooking);
 router.post('/addVehicles/:idUser', addVehiclesToUser);
 router.patch('/updateVehicles/:idUser/:vehicleId', updateVehicles);
+router.delete('/deleteVehicles/:idUser/:vehicleId', deleteVehicles);
 
 
 module.exports = router

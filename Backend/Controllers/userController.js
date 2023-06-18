@@ -410,18 +410,19 @@ const updateUser = asyncHandler(async(req, res) => {
     const { name, cellphone } = req.body;
 
     try {
-      const user = await UserParking.findOne({idUser});
+      const user = await User.findOne({idUser});
       if(user){
         const newInfo ={
           name: name,
           cellphone: cellphone,
         }
         await User.updateOne({idUser: idUser}, {$set: newInfo})
+        res.status(200).send('Datos Actualizados Correctamente');
       }
     } catch (err) {
       res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
     }
-
+    
     // User.findOneAndUpdate(idUser, { name, cellphone }, { new: true })
     //     .then(updatedUser => {
     //      res.json(updatedUser);
@@ -696,6 +697,28 @@ const updateVehicles = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteVehicles = asyncHandler(async (req, res) => {
+  try {
+    const { idUser, vehicleId } = req.params;
+
+    const user = await User.findOne({idUser});
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Filtrar el vehículo a eliminar
+    user.vehicle = user.vehicle.filter((vehicle) => vehicle._id != vehicleId);
+
+    await user.save();
+
+    res.json({ message: 'Vehículo eliminado exitosamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar el vehículo' });
+    console.log(error);
+  }
+});
+
 // Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -723,5 +746,6 @@ module.exports = {
     getUserSpaces,
     updateSpaceById,
     addVehiclesToUser,
-    updateVehicles
+    updateVehicles,
+    deleteVehicles
 }
