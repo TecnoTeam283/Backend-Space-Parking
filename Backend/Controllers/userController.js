@@ -79,9 +79,9 @@ const registerUser = asyncHandler(async(req, res) => {
 });
 
 const registerParking = asyncHandler(async(req, res) => {
-    const { name, email, cellphone, idUserParking, password, nameParking, address, cellphoneParking, nit, hourStart, hourEnd, capacity, priceMotorcycle, priceCar, location, roles} = req.body
+    const { name, email, cellphone, idUserParking, password, nameParking, address, cellphoneParking, nit, hourStart, hourEnd, capacity, priceMotorcycle, priceCar, allUrls, location, roles} = req.body
 
-    if (!name || !email || !cellphone || !idUserParking || !password || !nameParking || !address || !cellphoneParking || !nit || !hourStart || !hourEnd || !capacity || !priceMotorcycle || !priceCar, !location) {
+    if (!name || !email || !cellphone || !idUserParking || !password || !nameParking || !address || !cellphoneParking || !nit || !hourStart || !hourEnd || !capacity || !priceMotorcycle || !priceCar || !location || !allUrls ) {
         res.status(400)
         throw new Error('Please add all fields')
     }
@@ -117,6 +117,7 @@ const registerParking = asyncHandler(async(req, res) => {
       })),
         priceMotorcycle,
         priceCar,
+        allUrls,
         location: [location.lat, location.lng]
     })
 
@@ -370,7 +371,7 @@ const getUserParking = asyncHandler(async(req, res) => {
     const { email } = req.body;
     const userParking = await UserParking.findOne({ email: email });
     if (userParking) {
-        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd,  priceCar, priceMotorcycle, nit, capacity, location } = userParking;
+        const { _id, name, email, cellphone, idUserParking, nameParking, address, cellphoneParking, hourStart, hourEnd,  priceCar, priceMotorcycle, nit, capacity, location, allUrls } = userParking;
         
         res.status(200).json({
             id: _id,
@@ -387,6 +388,7 @@ const getUserParking = asyncHandler(async(req, res) => {
             location,
             priceMotorcycle,
             nit,
+            allUrls,
             capacity
         });
     } else {
@@ -410,25 +412,20 @@ const updateUser = asyncHandler(async(req, res) => {
     const { name, cellphone } = req.body;
 
     try {
-      const user = await UserParking.findOne({idUser});
+      const user = await User.findOne({idUser});
       if(user){
         const newInfo ={
           name: name,
           cellphone: cellphone,
         }
         await User.updateOne({idUser: idUser}, {$set: newInfo})
+        res.status(200).send('Datos Actualizados Correctamente');
+
       }
     } catch (err) {
       res.status(500).json({ err: 'Error al actualizar los datos del usuario' });
     }
 
-    // User.findOneAndUpdate(idUser, { name, cellphone }, { new: true })
-    //     .then(updatedUser => {
-    //      res.json(updatedUser);
-    // })
-    // .catch(error => {
-    //   res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
-    // });
 });
 
 const updateUserParking = asyncHandler(async(req, res) => {
