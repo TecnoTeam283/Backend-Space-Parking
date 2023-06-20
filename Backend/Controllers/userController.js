@@ -112,7 +112,7 @@ const registerParking = asyncHandler(async(req, res) => {
         hourStart,
         hourEnd,
         capacity: Array.from({ length: capacity }, (_, index) => ({
-          space: `Space ${index + 1}`,
+          space: `Espacio ${index + 1}`,
           state: 'available',
       })),
         priceMotorcycle,
@@ -564,10 +564,12 @@ const createBooking = asyncHandler(async(req, res) => {
         }
     
         let availableSpace;
+        let spaceBooking;
         for (const space of userParking.capacity) {
           if (space.state === 'available') {
             space.state = 'reserved';
             availableSpace = space;
+            spaceBooking = space.space
             break;
           }
         }
@@ -579,7 +581,7 @@ const createBooking = asyncHandler(async(req, res) => {
         userParking.save();
     
     
-        const booking = new Booking({ name,  nitParking, idUser, userName, cellphone, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
+        const booking = new Booking({ name,  nitParking, spaceBooking, idUser, userName, cellphone, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
         await booking.save();
     
         res.json({ mensaje: 'Reserva creada exitosamente' });

@@ -13,6 +13,10 @@ const bookingSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+    spaceBooking: {
+        type: String, 
+        required: true 
+    },
     userName: {
         type: String, 
         required: true 
