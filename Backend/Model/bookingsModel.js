@@ -9,6 +9,10 @@ const bookingSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+    placa: {
+        type: String, 
+        required: true 
+    },
     idUser: {
         type: String, 
         required: true 

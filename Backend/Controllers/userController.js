@@ -510,12 +510,14 @@ const getBookingByNitParking = asyncHandler(async(req,res) =>{
 
     if (bookings.length > 0) {
         const bookingData = bookings.map((booking) => {
-          const { name, userName, cellphone, nitParking, dateStartBooking, dateEndBooking } = booking;
+          const { name, userName, cellphone, placa, nitParking, spaceBooking, dateStartBooking, dateEndBooking } = booking;
           return {
             name,
             userName,
             cellphone,
+            placa,
             nitParking,
+            spaceBooking,
             dateStartBooking,
             dateEndBooking,
           };
@@ -529,7 +531,7 @@ const getBookingByNitParking = asyncHandler(async(req,res) =>{
 
 const createBooking = asyncHandler(async(req, res) => {
     try {
-        const { name, nitParking, idUser, userName, cellphone, dateStartBooking, duration } = req.body;
+        const { name, nitParking, placa, idUser, userName, cellphone, dateStartBooking, duration } = req.body;
         const formattedStartBooking = moment(dateStartBooking).format('YYYY-MM-DD HH:mm:ss');
         const formattedEndBooking = moment(dateStartBooking).add(duration, 'minutes').format('YYYY-MM-DD HH:mm:ss');
 
@@ -581,7 +583,7 @@ const createBooking = asyncHandler(async(req, res) => {
         userParking.save();
     
     
-        const booking = new Booking({ name,  nitParking, spaceBooking, idUser, userName, cellphone, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
+        const booking = new Booking({ name,  nitParking, spaceBooking, placa, idUser, userName, cellphone, dateStartBooking: formattedStartBooking, dateEndBooking: formattedEndBooking });
         await booking.save();
     
         res.json({ mensaje: 'Reserva creada exitosamente' });
