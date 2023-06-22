@@ -627,7 +627,7 @@ const updateSpaceById = asyncHandler(async(req, res) => {
 
 const addVehiclesToUser = asyncHandler(async (req, res) => {
   const { idUser } = req.params; // Obtener el ID del usuario desde los parámetros de la solicitud
-  const { placa, model, license, typeVehicle } = req.body; // Obtener los datos del vehículo del cuerpo de la solicitud
+  const { placa, model, typeVehicle } = req.body; // Obtener los datos del vehículo del cuerpo de la solicitud
 
   try {
     // Buscar al usuario por su ID
@@ -641,7 +641,6 @@ const addVehiclesToUser = asyncHandler(async (req, res) => {
     const newVehicle = {
       placa,
       model,
-      license,
       typeVehicle
     };
 
